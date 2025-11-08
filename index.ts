@@ -1,5 +1,5 @@
 import 'dotenv/config';
 
-import { initApp } from './src/app.ts';
+import { initServer } from './src/server.ts';
 
-initApp();
+initServer();
