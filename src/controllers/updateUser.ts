@@ -38,6 +38,11 @@ export const updateUser = (req: IncomingMessage, res: ServerResponse) => {
           if (type === 'update') {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(payload));
+          } else if (type === 'error') {
+            res.writeHead(payload.statusCode, {
+              'Content-Type': 'application/json',
+            });
+            res.end(JSON.stringify({ error: payload.message }));
           }
         });
       } else {

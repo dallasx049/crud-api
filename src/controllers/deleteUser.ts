@@ -15,10 +15,15 @@ export const deleteUser = (req: IncomingMessage, res: ServerResponse) => {
     if (cluster.isWorker) {
       process.send?.({ type: 'delete', payload: userId });
 
-      process.once('message', ({ type }: TClusterMessage) => {
+      process.once('message', ({ type, payload }: TClusterMessage) => {
         if (type === 'delete') {
           res.writeHead(204, { 'Content-Type': 'application/json' });
           res.end();
+        } else if (type === 'error') {
+          res.writeHead(payload.statusCode, {
+            'Content-Type': 'application/json',
+          });
+          res.end(JSON.stringify({ error: payload.message }));
         }
       });
     } else {

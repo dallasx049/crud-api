@@ -15,10 +15,15 @@ export const getUserById = (req: IncomingMessage, res: ServerResponse) => {
     if (cluster.isWorker) {
       process.send?.({ type: 'getById', payload: userId });
 
-      process.once('message', (message: TClusterMessage) => {
-        if (message.type === 'getById') {
+      process.once('message', ({ type, payload }: TClusterMessage) => {
+        if (type === 'getById') {
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(message.payload));
+          res.end(JSON.stringify(payload));
+        } else if (type === 'error') {
+          res.writeHead(payload.statusCode, {
+            'Content-Type': 'application/json',
+          });
+          res.end(JSON.stringify({ error: payload.message }));
         }
       });
     } else {

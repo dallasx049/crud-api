@@ -21,10 +21,15 @@ export const createUser = (req: IncomingMessage, res: ServerResponse) => {
       if (cluster.isWorker) {
         process.send?.({ type: 'create', payload: JSON.parse(body) });
 
-        process.once('message', (message: TClusterMessage) => {
-          if (message.type === 'create') {
+        process.once('message', ({ type, payload }: TClusterMessage) => {
+          if (type === 'create') {
             res.writeHead(201, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(message.payload));
+            res.end(JSON.stringify(payload));
+          } else if (type === 'error') {
+            res.writeHead(payload.statusCode, {
+              'Content-Type': 'application/json',
+            });
+            res.end(JSON.stringify({ error: payload.message }));
           }
         });
       } else {

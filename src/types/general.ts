@@ -45,4 +45,11 @@ export type TClusterMessage =
   | {
       type: 'delete';
       payload: null;
+    }
+  | {
+      type: 'error';
+      payload: {
+        statusCode: number;
+        message: string;
+      };
     };

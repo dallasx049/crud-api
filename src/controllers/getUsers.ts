@@ -13,6 +13,11 @@ export const getUsers = (res: ServerResponse) => {
         if (type === 'get') {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(payload));
+        } else if (type === 'error') {
+          res.writeHead(payload.statusCode, {
+            'Content-Type': 'application/json',
+          });
+          res.end(JSON.stringify({ error: payload.message }));
         }
       });
     } else {
