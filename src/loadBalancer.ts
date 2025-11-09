@@ -2,6 +2,9 @@ import { availableParallelism } from 'node:os';
 import cluster from 'node:cluster';
 import { createServer, request } from 'node:http';
 
+import { users } from './models/users.ts';
+import type { TWorkerMessage } from './types/general.ts';
+
 export const initLoadBalancer = () => {
   const FIRST_WORKER_ID = 1;
 
@@ -41,6 +44,32 @@ export const initLoadBalancer = () => {
         currentWorkerId = FIRST_WORKER_ID;
       }
     });
+  });
+
+  cluster.on('message', (worker, { type, payload }: TWorkerMessage) => {
+    switch (type) {
+      case 'create': {
+        worker.send({ type, payload: users.create(payload) });
+        break;
+      }
+      case 'get': {
+        worker.send({ type, payload: users.get() });
+        break;
+      }
+      case 'getById': {
+        worker.send({ type, payload: users.getById(payload) });
+        break;
+      }
+      case 'update': {
+        worker.send({ type, payload: users.update(payload.id, payload.body) });
+        break;
+      }
+      case 'delete': {
+        users.delete(payload);
+        worker.send({ type, payload: null });
+        break;
+      }
+    }
   });
 
   loadBalancer.listen(port, () => {

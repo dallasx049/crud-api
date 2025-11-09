@@ -7,7 +7,7 @@ interface IUsersService {
   getById: (id: string | undefined) => TUser;
   create: (payload: unknown) => TUser;
   update: (id: string | undefined, payload: unknown) => TUser;
-  delete: (id: string | undefined) => TUser;
+  delete: (id: string | undefined) => void;
 }
 
 class UsersService implements IUsersService {
@@ -66,7 +66,7 @@ class UsersService implements IUsersService {
     return user;
   }
 
-  public delete(id?: string): TUser {
+  public delete(id?: string) {
     this.validateUserId(id);
 
     const userIndex = this.users.findIndex((user) => user.id === id);
@@ -74,11 +74,7 @@ class UsersService implements IUsersService {
       throw new UserNotFoundError();
     }
 
-    const user = this.users[userIndex];
-
     this.users.splice(userIndex, 1);
-
-    return user;
   }
 
   private validateUserId(id?: string) {

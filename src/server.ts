@@ -12,6 +12,8 @@ const port = process.env.PORT;
 
 export const initServer = () => {
   const server = createServer((req, res) => {
+    console.log(`Server received request on PORT ${port}`);
+
     if (req.method === 'GET' && req.url === '/api/users') {
       getUsers(res);
     } else if (req.method === 'POST' && req.url === '/api/users') {

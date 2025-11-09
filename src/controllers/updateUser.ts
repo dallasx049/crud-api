@@ -6,6 +6,8 @@ import {
   UserIdValidationError,
   UserValidationError,
 } from '../models/users.ts';
+import cluster from 'node:cluster';
+import type { TClusterMessage } from '../types/general.js';
 
 export const updateUser = (req: IncomingMessage, res: ServerResponse) => {
   const userId = req.url?.split('/').at(-1);
@@ -23,9 +25,27 @@ export const updateUser = (req: IncomingMessage, res: ServerResponse) => {
 
   req.on('end', () => {
     try {
-      const updatedUser = users.update(userId, JSON.parse(body));
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(updatedUser));
+      if (cluster.isWorker) {
+        process.send?.({
+          type: 'update',
+          payload: {
+            id: userId,
+            body: JSON.parse(body),
+          },
+        });
+
+        process.once('message', ({ type, payload }: TClusterMessage) => {
+          if (type === 'update') {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(payload));
+          }
+        });
+      } else {
+        const updatedUser = users.update(userId, JSON.parse(body));
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(updatedUser));
+      }
     } catch (e) {
       if (e instanceof UserIdValidationError) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
