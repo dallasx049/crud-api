@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "start:dev": "nodemon src/index.ts",
-    "start:prod": "npx tsc && node dist/index.js"
+    "start:prod": "npx tsc && node dist/index.js",
+    "start:multi": "cross-env ENABLE_LOAD_BALANCER=true nodemon src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.0",
+    "cross-env": "^10.1.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^16.5.0",

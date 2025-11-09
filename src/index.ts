@@ -1,5 +1,12 @@
 import 'dotenv/config';
 
-import { initServer } from './server.ts';
+import cluster from 'node:cluster';
 
-initServer();
+import { initServer } from './server.ts';
+import { initLoadBalancer } from './loadBalancer.ts';
+
+if (process.env.ENABLE_LOAD_BALANCER && cluster.isPrimary) {
+  initLoadBalancer();
+} else {
+  initServer();
+}
